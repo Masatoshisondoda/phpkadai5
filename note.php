@@ -9,7 +9,7 @@ $param1 = $_GET['param1'];
 $param2 = $_GET['param2'];
 $id = $_GET['id'];
 $noteindex = $_GET['noteindex'];
-var_dump($param1,$param2,$id,$noteindex);
+var_dump($param1, $param2, $id, $noteindex);
 if ($id == null) {
     if ($param1 == 1) {
         $pdo = connect_to_db();
@@ -73,8 +73,8 @@ if ($id == null) {
     <link rel="stylesheet" type="text/css" href="dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="dist/semantic.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"> -->
+    <!-- bulma.min.cssでh2が効かない -->
 </head>
 
 <body>
@@ -115,23 +115,22 @@ if ($id == null) {
 
 
     <div class=note style="margin:85px">
-        <div class="paper">
+        <!-- <div class="paper">
             <div class="lines">
                 <div class="text">
-                    <!--<div class="text" contenteditable spellcheck="false">だった-->
-                    <div class=editArea>
-
-                        <div id="editor"></div>
-                    </div>
+                    <div class="text" contenteditable spellcheck="false">だった-->
+        <!-- <div class=editArea> -->
+        <div id="editor"></div>
+        <!-- </div>
                 </div>
                 <div class="holes hole-top"></div>
                 <div class="holes hole-middle"></div>
                 <div class="holes hole-bottom"></div>
-            </div>
-            <div id=editCan class=editCan></div>
+            </div> -->
+        <div id=editCan class=editCan></div>
 
 
-        </div>
+    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
@@ -313,14 +312,34 @@ if ($id == null) {
                     shortcut: 'CMD+SHIFT+M',
                 },
                 header: Header,
-                list: List,
-                checklist: Checklist,
-                quote: Quote,
-                code: CodeTool
+                // list: List,
+                // checklist: Checklist,
+                // quote: Quote,
+                // code: CodeTool
 
             },
-            data: data
-
+            data: {
+                blocks: [{
+                        type: "paragraph",
+                        data: {
+                            text: <?= $output ?>,
+                        },
+                    },
+                    {
+                        type: "paragraph",
+                        data: {
+                            text: "Enterを押すと新しいブロックが作成されます。",
+                        },
+                    },
+                    {
+                        type: "paragraph",
+                        data: {
+                            text: "Enterを押すと新しいブロックが作成されます。",
+                        },
+                    },
+                ],
+                version: "2.8.1",
+            },
         });
 
 
@@ -329,25 +348,27 @@ if ($id == null) {
         save.addEventListener('click', () => {
             editor.save()
                 .then((savedData) => {
-                    console.log(savedData.blocks);
+                    console.log(savedData);
+                    console.log(savedData.blocks.length);
+                    const savetime = savedData.time;
                     const ajaxindex = savedData.blocks;
-                    console.log(ajaxindex);
+                    console.log(ajaxindex, savetime);
                     const id = <?= $output ?>;
                     console.log(id);
+
                     $.ajax({
                         url: "date_recieve.php", // 送信先のPHP
-                        type: "POST", // POSTで送る
+                        type: "POST", // GETで送る
                         dataType: "text",
                         //必須ではなさそうだが、サーバ側との整合のために明示しておいた方がよいと書かれていたが、以下を指定すると、ajaxエラーになる。dataType: 'json', 
-
                         data: {
-                            "ajaxindex": ajaxindex,
-                            "id": id
+                            ajaxindex: ajaxindex,
+                            id: id,
+                            savetime: savetime
                         },
 
                     }).done(function(data) {
-                        console.log('success!!');
-                        console.log(ajaxindex);
+                        console.log(data);
                     }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
                         console.log('error!!!');
                         console.log("XMLHttpRequest : " + XMLHttpRequest.status);

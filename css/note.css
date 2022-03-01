@@ -123,8 +123,13 @@
     margin-left: -23%;
   
 } */
-.sticky {
+/* .sticky {
   position: -webkit-sticky;
   position: sticky;
     top: 0;
+} */
+.ce-header{
+  margin: initial;
+  font-size: initial;
+  font-weight: initial;
 }
