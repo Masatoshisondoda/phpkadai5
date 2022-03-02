@@ -21,9 +21,9 @@ foreach($ajaxindex as $keys=>$V){
         $a4=$a3['text'];
         var_dump($aaa,$a2,$a3,$a4);
         // $sql = 'UPDATE noteindex SET notecontent=:jsondata, updated_at=now() WHERE noteid=:id';
-        $sql = 'INSERT INTO noteindex (id,savetime, notecontent,noteindex,notetext,user_id,created_at) VALUES (:id,:savetime,:notecontent,:noteindex,:notetext,:user_id,now())';
+        $sql = 'INSERT INTO noteindex (noteid,savetime, notecontent,noteindex,notetext,user_id,created_at) VALUES (:noteid,:savetime,:notecontent,:noteindex,:notetext,:user_id,now())';
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':id', $id, PDO::PARAM_STR);
+        $stmt->bindValue(':noteid', $id, PDO::PARAM_STR);
         $stmt->bindValue(':savetime', $savetime, PDO::PARAM_STR);
         $stmt->bindValue(':notecontent', $aaa, PDO::PARAM_STR);
         $stmt->bindValue(':noteindex', $a2, PDO::PARAM_STR);

@@ -4,19 +4,27 @@ session_start();
 include('functions.php');
 check_session_id();
 //新規作成か否かチェック
-
+$userId = $_SESSION['user_id'];
 $param1 = $_GET['param1'];
 $param2 = $_GET['param2'];
 $id = $_GET['id'];
 $noteindex = $_GET['noteindex'];
+
+// $sql = 'SELECT * FROM noteindex INNER JOIN (SELECT noteid FROM studyselfnote) AS result_table ON result_table.noteid = noteindex.noteid WHERE user_id=:user_id';
+// SELECT * FROM noteindex INNER JOIN studyselfnote ON studyselfnote.noteid = noteindex.noteid;
+// $stmt = $pdo->prepare($sql);
+// $stmt->bindValue(':user_id', $userid, PDO::PARAM_STR);
+
 var_dump($param1, $param2, $id, $noteindex);
 if ($id == null) {
     if ($param1 == 1) {
+        //note新規作成
         $pdo = connect_to_db();
         $user_id = $param2;
         $sql = 'SELECT * FROM studyselfnote WHERE noteid=:id';
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
+
         try {
             $status = $stmt->execute();
         } catch (PDOException $e) {
@@ -28,9 +36,10 @@ if ($id == null) {
     } else {
         $value = $param2;
         $pdo = connect_to_db();
-        $sql = 'SELECT * FROM studyselfnote WHERE noteid=:id';
+        $sql = 'SELECT * FROM noteindex INNER JOIN studyselfnote ON studyselfnote.noteid = noteindex.noteid WHERE studyselfnote.noteid=:id AND noteindex.user_id=:user_id';
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $value, PDO::PARAM_INT);
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_STR);
         try {
             $status = $stmt->execute();
         } catch (PDOException $e) {
@@ -43,9 +52,10 @@ if ($id == null) {
     $output = $param2;
 } else {
     $pdo = connect_to_db();
-    $sql = 'SELECT * FROM studyselfnote WHERE noteid=:id';
+    $sql = 'SELECT * FROM noteindex INNER JOIN studyselfnote ON studyselfnote.noteid = noteindex.noteid WHERE studyselfnote.noteid=:id AND noteindex.user_id=:user_id';
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_STR);
     try {
         $status = $stmt->execute();
     } catch (PDOException $e) {
@@ -57,7 +67,13 @@ if ($id == null) {
     $output = $id;
 }
 
+$output2 = "";
+foreach ($result as $record) {
+    $output2 .= "
 
+
+    ";
+}
 
 
 ?>
@@ -144,6 +160,9 @@ if ($id == null) {
     <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
 
     <script>
+        const hogeArray = <?= json_encode($record) ?>;
+        console.log(hogeArray);
+
         const showDialog = document.querySelector('dialog');
         const noteCreate = document.getElementById('noteCreate');
         const dialogClose = document.getElementById('dialogClose');
@@ -328,7 +347,7 @@ if ($id == null) {
                     {
                         type: "paragraph",
                         data: {
-                            text: "Enterを押すと新しいブロックが作成されます。",
+                            text: hogeArray,
                         },
                     },
                     {
