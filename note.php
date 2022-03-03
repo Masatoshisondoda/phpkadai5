@@ -5,6 +5,7 @@ include('functions.php');
 check_session_id();
 //新規作成か否かチェック
 $userId = $_SESSION['user_id'];
+$stringUserId=  $userId;
 $param1 = $_GET['param1'];
 $param2 = $_GET['param2'];
 $id = $_GET['id'];
@@ -15,7 +16,7 @@ $noteindex = $_GET['noteindex'];
 // $stmt = $pdo->prepare($sql);
 // $stmt->bindValue(':user_id', $userid, PDO::PARAM_STR);
 
-var_dump($param1, $param2, $id, $noteindex);
+
 if ($id == null) {
     if ($param1 == 1) {
         //note新規作成
@@ -24,7 +25,7 @@ if ($id == null) {
         $sql = 'SELECT * FROM studyselfnote WHERE noteid=:id';
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
-
+        var_dump($user_id);
         try {
             $status = $stmt->execute();
         } catch (PDOException $e) {
@@ -32,14 +33,17 @@ if ($id == null) {
             exit();
         }
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        var_dump($record);
         $output = $param2;
     } else {
         $value = $param2;
         $pdo = connect_to_db();
-        $sql = 'SELECT * FROM noteindex INNER JOIN studyselfnote ON studyselfnote.noteid = noteindex.noteid WHERE studyselfnote.noteid=:id AND noteindex.user_id=:user_id';
+        $sql = 'SELECT * FROM noteindex LEFT OUTER JOIN studyselfnote ON studyselfnote.user_id = noteindex.user_id WHERE studyselfnote.noteid=:id AND noteindex.user_id=:userid';
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':id', $value, PDO::PARAM_INT);
-        $stmt->bindValue(':user_id', $userId, PDO::PARAM_STR);
+        $stmt->bindValue(':userid', $stringUserId, PDO::PARAM_INT);
+        var_dump($value, $stringUserId);
+        
         try {
             $status = $stmt->execute();
         } catch (PDOException $e) {
@@ -48,14 +52,16 @@ if ($id == null) {
         }
 
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        var_dump($status,$record);
+        $output = $param2;
     }
-    $output = $param2;
 } else {
+    //ホームにあるノート
     $pdo = connect_to_db();
-    $sql = 'SELECT * FROM noteindex INNER JOIN studyselfnote ON studyselfnote.noteid = noteindex.noteid WHERE studyselfnote.noteid=:id AND noteindex.user_id=:user_id';
+    $sql = 'SELECT * FROM noteindex LEFT OUTER JOIN studyselfnote ON studyselfnote.user_id = noteindex.user_id WHERE studyselfnote.noteid=:id AND noteindex.user_id=:userid';
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-    $stmt->bindValue(':user_id', $userId, PDO::PARAM_STR);
+    $stmt->bindValue(':userid', $stringUserId, PDO::PARAM_INT);
     try {
         $status = $stmt->execute();
     } catch (PDOException $e) {
@@ -64,6 +70,7 @@ if ($id == null) {
     }
 
     $record = $stmt->fetch(PDO::FETCH_ASSOC);
+    var_dump($id, $stringUserId);
     $output = $id;
 }
 
@@ -94,6 +101,7 @@ foreach ($result as $record) {
 </head>
 
 <body>
+    
     <header>
         <dialog>
             <form method="post" action="notename_update.php" class=dialog>
@@ -109,6 +117,7 @@ foreach ($result as $record) {
         </dialog>
 
     </header>
+    
     <div class="ui large menu ui fixed inverted menu">
         <a href=home.php class="item">
             <i class="big arrow alternate circle left icon"></i>
