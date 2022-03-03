@@ -52,6 +52,7 @@ if ($id == null) {
         }
 
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
+        $record2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
         var_dump($status,$record);
         $output = $param2;
     }
@@ -70,15 +71,15 @@ if ($id == null) {
     }
 
     $record = $stmt->fetch(PDO::FETCH_ASSOC);
+    $record2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
     var_dump($id, $stringUserId);
     $output = $id;
 }
 
 $output2 = "";
-foreach ($result as $record) {
+foreach ($record2 as $result) {
     $output2 .= "
-
-
+    {$result['notetext']}
     ";
 }
 
@@ -169,7 +170,7 @@ foreach ($result as $record) {
     <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
 
     <script>
-        const hogeArray = <?= json_encode($record) ?>;
+        const hogeArray = <?= json_encode($output2) ?>;
         console.log(hogeArray);
 
         const showDialog = document.querySelector('dialog');
